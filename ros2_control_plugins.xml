@@ -1,0 +1,19 @@
+<library path="robee_transmissions">
+  <!-- Transmission types -->
+  <class name="transmission_interface/ScaraTransmission"
+         type="transmission_interface::ScaraTransmissionLoader"
+         base_class_type="transmission_interface::TransmissionLoader">
+    <description>
+      Load configuration of a scara transmission from a URDF description.
+    </description>
+  </class>
+
+
+ <class name="transmission_interface/BasicTransmission"
+         type="transmission_interface::BasicTransmissionLoader"
+         base_class_type="transmission_interface::TransmissionLoader">
+    <description>
+      Load configuration of a Basic transmission from a URDF description.
+    </description>
+  </class>
+</library>
