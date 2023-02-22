@@ -20,15 +20,15 @@
 #include "transmission_interface/transmission.hpp"
 #include "transmission_interface/transmission_loader.hpp"
 
-namespace transmission_interface
+namespace robee_transmission_interface
 {
 /**
  * \brief Class for loading a scara transmission instance from configuration data.
  */
-class ScaraTransmissionLoader : public TransmissionLoader
+class ScaraTransmissionLoader : public transmission_interface::TransmissionLoader
 {
 public:
-  std::shared_ptr<Transmission> load(
+  std::shared_ptr<transmission_interface::Transmission> load(
     const hardware_interface::TransmissionInfo & transmission_info) override;
 };
 

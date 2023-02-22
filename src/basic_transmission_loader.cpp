@@ -24,9 +24,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "robee_transmissions/basic_transmission.hpp"
 
-namespace transmission_interface
+namespace robee_transmission_interface
 {
-  std::shared_ptr<Transmission> BasicTransmissionLoader::load(const hardware_interface::TransmissionInfo & transmission_info)
+  std::shared_ptr<transmission_interface::Transmission> BasicTransmissionLoader::load(const hardware_interface::TransmissionInfo & transmission_info)
   {
     try
     {
@@ -35,7 +35,7 @@ namespace transmission_interface
       const auto jnt_offset1 = transmission_info.joints.at(0).offset;
 
 
-      std::shared_ptr<Transmission> transmission(new BasicTransmission(jnt_reduction1, jnt_offset1));
+      std::shared_ptr<transmission_interface::Transmission> transmission(new BasicTransmission(jnt_reduction1, jnt_offset1));
       return transmission;
     }
     catch (const std::exception & ex)
@@ -43,12 +43,12 @@ namespace transmission_interface
       RCLCPP_ERROR(
         rclcpp::get_logger("Basic_transmission_loader"),
         "Failed to construct transmission '%s'", ex.what());
-      return std::shared_ptr<Transmission>();
+      return std::shared_ptr<transmission_interface::Transmission>();
     }
   }
 
-}  // namespace transmission_interface
+}  // namespace robee_transmission_interface
 
 PLUGINLIB_EXPORT_CLASS(
-  transmission_interface::BasicTransmissionLoader,
+  robee_transmission_interface::BasicTransmissionLoader,
   transmission_interface::TransmissionLoader)

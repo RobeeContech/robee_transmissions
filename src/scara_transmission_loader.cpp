@@ -24,9 +24,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "robee_transmissions/scara_transmission.hpp"
 
-namespace transmission_interface
+namespace robee_transmission_interface
 {
-  std::shared_ptr<Transmission> ScaraTransmissionLoader::load(const hardware_interface::TransmissionInfo & transmission_info)
+  std::shared_ptr<transmission_interface::Transmission> ScaraTransmissionLoader::load(const hardware_interface::TransmissionInfo & transmission_info)
   {
     try
     {
@@ -36,7 +36,7 @@ namespace transmission_interface
       const auto jnt_offset1 = transmission_info.joints.at(0).offset;
       const auto jnt_offset2 = transmission_info.joints.at(1).offset;
 
-      std::shared_ptr<Transmission> transmission(new ScaraTransmission({jnt_reduction1, jnt_reduction2}, {jnt_offset1, jnt_offset2}));
+      std::shared_ptr<transmission_interface::Transmission> transmission(new ScaraTransmission({jnt_reduction1, jnt_reduction2}, {jnt_offset1, jnt_offset2}));
       return transmission;
     }
     catch (const std::exception & ex)
@@ -44,12 +44,12 @@ namespace transmission_interface
       RCLCPP_ERROR(
         rclcpp::get_logger("scara_transmission_loader"),
         "Failed to construct transmission '%s'", ex.what());
-      return std::shared_ptr<Transmission>();
+      return std::shared_ptr<transmission_interface::Transmission>();
     }
   }
 
 }  // namespace transmission_interface
 
 PLUGINLIB_EXPORT_CLASS(
-  transmission_interface::ScaraTransmissionLoader,
+  robee_transmission_interface::ScaraTransmissionLoader,
   transmission_interface::TransmissionLoader)

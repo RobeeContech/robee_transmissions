@@ -72,7 +72,7 @@ TEST(ScaraTransmissionLoaderTest, FullSpec)
           <state_interface name="position"/>
         </joint>
         <transmission name="transmission1">
-          <plugin>transmission_interface/ScaraTransmission</plugin>
+          <plugin>robee_transmission_interface/ScaraTransmission</plugin>
           <actuator name="joint1_motor" role="actuator1">
             <mechanical_reduction>50</mechanical_reduction>
           </actuator>
@@ -107,8 +107,8 @@ TEST(ScaraTransmissionLoaderTest, FullSpec)
   transmission = transmission_loader->load(info);
 
   // Validate transmission
-  transmission_interface::ScaraTransmission * scara_transmission =
-    dynamic_cast<transmission_interface::ScaraTransmission *>(transmission.get());
+  robee_transmission_interface::ScaraTransmission * scara_transmission =
+    dynamic_cast<robee_transmission_interface::ScaraTransmission *>(transmission.get());
   ASSERT_TRUE(nullptr != scara_transmission);
 
   const std::vector<double> & joint_reduction = scara_transmission->get_joint_reduction();
@@ -142,7 +142,7 @@ TEST(ScaraTransmissionLoaderTest, only_mech_red_specified)
           <state_interface name="position"/>
         </joint>
         <transmission name="transmission1">
-          <plugin>transmission_interface/ScaraTransmission</plugin>
+          <plugin>robee_transmission_interface/ScaraTransmission</plugin>
           <actuator name="joint1_motor" role="actuator1">
             <mechanical_reduction>50</mechanical_reduction>
           </actuator>
@@ -174,8 +174,8 @@ TEST(ScaraTransmissionLoaderTest, only_mech_red_specified)
   transmission = transmission_loader->load(info);
 
   // Validate transmission
-  transmission_interface::ScaraTransmission * scara_transmission =
-    dynamic_cast<transmission_interface::ScaraTransmission *>(transmission.get());
+  robee_transmission_interface::ScaraTransmission * scara_transmission =
+    dynamic_cast<robee_transmission_interface::ScaraTransmission *>(transmission.get());
 
   const std::vector<double> & joint_reduction = scara_transmission->get_joint_reduction();
   EXPECT_EQ(1.0, joint_reduction[0]);
@@ -208,7 +208,7 @@ TEST(SimpleTransmissionLoaderTest, offset_and_mech_red_not_specified)
           <state_interface name="position"/>
         </joint>
         <transmission name="transmission1">
-          <plugin>transmission_interface/ScaraTransmission</plugin>
+          <plugin>robee_transmission_interface/ScaraTransmission</plugin>
           <actuator name="joint1_motor" role="actuator1"/>
           <actuator name="joint2_motor" role="actuator2"/>
           <joint name="joint1" role="joint1"/>
@@ -232,8 +232,8 @@ TEST(SimpleTransmissionLoaderTest, offset_and_mech_red_not_specified)
   transmission = transmission_loader->load(info);
 
   // Validate transmission
-  transmission_interface::ScaraTransmission * scara_transmission =
-    dynamic_cast<transmission_interface::ScaraTransmission *>(transmission.get());
+  robee_transmission_interface::ScaraTransmission * scara_transmission =
+    dynamic_cast<robee_transmission_interface::ScaraTransmission *>(transmission.get());
 
   const std::vector<double> & joint_reduction = scara_transmission->get_joint_reduction();
   EXPECT_EQ(1.0, joint_reduction[0]);
@@ -266,7 +266,7 @@ TEST(ScaraTransmissionLoaderTest, mechanical_reduction_not_a_number)
           <state_interface name="position"/>
         </joint>
         <transmission name="transmission1">
-          <plugin>transmission_interface/ScaraTransmission</plugin>
+          <plugin>robee_transmission_interface/ScaraTransmission</plugin>
           <actuator name="joint1_motor" role="actuator1">
             <mechanical_reduction>one</mechanical_reduction>
           </actuator>
@@ -298,8 +298,8 @@ TEST(ScaraTransmissionLoaderTest, mechanical_reduction_not_a_number)
   transmission = transmission_loader->load(info);
 
   // Validate transmission
-  transmission_interface::ScaraTransmission * scara_transmission =
-    dynamic_cast<transmission_interface::ScaraTransmission *>(transmission.get());
+  robee_transmission_interface::ScaraTransmission * scara_transmission =
+    dynamic_cast<robee_transmission_interface::ScaraTransmission *>(transmission.get());
 
   // default kicks in for ill-defined values
 
@@ -334,7 +334,7 @@ TEST(ScaraTransmissionLoaderTest, offset_ill_defined)
           <state_interface name="position"/>
         </joint>
         <transmission name="transmission1">
-          <plugin>transmission_interface/ScaraTransmission</plugin>
+          <plugin>robee_transmission_interface/ScaraTransmission</plugin>
           <actuator name="joint1_motor" role="actuator1">
             <mechanical_reduction>50</mechanical_reduction>
           </actuator>
@@ -368,8 +368,8 @@ TEST(ScaraTransmissionLoaderTest, offset_ill_defined)
   transmission = transmission_loader->load(info);
 
   // Validate transmission
-  transmission_interface::ScaraTransmission * scara_transmission =
-    dynamic_cast<transmission_interface::ScaraTransmission *>(transmission.get());
+  robee_transmission_interface::ScaraTransmission * scara_transmission =
+    dynamic_cast<robee_transmission_interface::ScaraTransmission *>(transmission.get());
 
   // default kicks in for ill-defined values
   const std::vector<double> & joint_reduction = scara_transmission->get_joint_reduction();
@@ -404,7 +404,7 @@ TEST(ScaraTransmissionLoaderTest, mech_red_invalid_value)
           <state_interface name="position"/>
         </joint>
         <transmission name="transmission1">
-          <plugin>transmission_interface/ScaraTransmission</plugin>
+          <plugin>robee_transmission_interface/ScaraTransmission</plugin>
           <actuator name="joint1_motor" role="actuator1">
             <mechanical_reduction>0</mechanical_reduction>
           </actuator>

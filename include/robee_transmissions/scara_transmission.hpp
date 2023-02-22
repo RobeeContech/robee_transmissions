@@ -28,7 +28,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-namespace transmission_interface
+namespace robee_transmission_interface
 {
 /// Implementation of a scara transmission.
 /**
@@ -103,7 +103,7 @@ namespace transmission_interface
  *
  * \ingroup transmission_types
  */
-class ScaraTransmission : public Transmission
+class ScaraTransmission : public transmission_interface::Transmission
 {
 public:
   /**
@@ -119,8 +119,8 @@ public:
    * \pre Handles are valid and matching in size
    */
   void configure(
-    const std::vector<JointHandle> & joint_handles,
-    const std::vector<ActuatorHandle> & actuator_handles) override;
+    const std::vector<transmission_interface::JointHandle> & joint_handles,
+    const std::vector<transmission_interface::ActuatorHandle> & actuator_handles) override;
 
   /// Transform variables from actuator to joint space.
   /**
@@ -148,13 +148,13 @@ protected:
   std::vector<double> joint_reduction_;
   std::vector<double> joint_offset_;
 
-  std::vector<JointHandle> joint_position_;
-  std::vector<JointHandle> joint_velocity_;
-  std::vector<JointHandle> joint_effort_;
+  std::vector<transmission_interface::JointHandle> joint_position_;
+  std::vector<transmission_interface::JointHandle> joint_velocity_;
+  std::vector<transmission_interface::JointHandle> joint_effort_;
 
-  std::vector<ActuatorHandle> actuator_position_;
-  std::vector<ActuatorHandle> actuator_velocity_;
-  std::vector<ActuatorHandle> actuator_effort_;
+  std::vector<transmission_interface::ActuatorHandle> actuator_position_;
+  std::vector<transmission_interface::ActuatorHandle> actuator_velocity_;
+  std::vector<transmission_interface::ActuatorHandle> actuator_effort_;
 };
 
 
@@ -165,28 +165,28 @@ inline ScaraTransmission::ScaraTransmission(const std::vector<double> & joint_re
   if (num_joints() != joint_reduction_.size() || num_joints() != joint_offset_.size())
   {
     RCLCPP_INFO(rclcpp::get_logger("ScaraTransmission"),"Reduction and offset vectors must have size 2.");
-    throw Exception("Reduction and offset vectors must have size 2.");
+    throw  transmission_interface::Exception("Reduction and offset vectors must have size 2.");
   }
 
   if ( 0.0 == joint_reduction_[0] || 0.0 == joint_reduction_[1])
   {
     RCLCPP_INFO(rclcpp::get_logger("ScaraTransmission"),"Transmission reduction ratios cannot be zero.");
-    throw Exception("Transmission reduction ratios cannot be zero.");
+    throw  transmission_interface::Exception("Transmission reduction ratios cannot be zero.");
   }
 }
 
 void ScaraTransmission::configure(
-  const std::vector<JointHandle> & joint_handles,
-  const std::vector<ActuatorHandle> & actuator_handles)
+  const std::vector<transmission_interface::JointHandle> & joint_handles,
+  const std::vector<transmission_interface::ActuatorHandle> & actuator_handles)
 {
   if (joint_handles.empty())
   {
-    throw Exception("No joint handles were passed in");
+    throw  transmission_interface::Exception("No joint handles were passed in");
   }
 
   if (actuator_handles.empty())
   {
-    throw Exception("No actuator handles were passed in");
+    throw  transmission_interface::Exception("No actuator handles were passed in");
   }
 
   const auto joint_names = get_names(joint_handles);
@@ -200,12 +200,12 @@ void ScaraTransmission::configure(
 
   if (joint_position_.size() == 0 && joint_velocity_.size() == 0 && joint_effort_.size() == 0)
   {
-    throw Exception("Not enough valid or required joint handles were presented.");
+    throw  transmission_interface::Exception("Not enough valid or required joint handles were presented.");
   }
 
-  if (joint_position_.size() > 0 && joint_position_.size() != 2)  throw Exception(" illegal joint_position_.size() bigger then zero but not 2");
-  if (joint_velocity_.size() > 0 && joint_velocity_.size() != 2)  throw Exception(" illegal joint_velocity_.size() bigger then zero but not 2");
-  if (joint_effort_.size() > 0 && joint_effort_.size() != 2)  throw Exception(" illegal joint_effort_.size() bigger then zero but not 2");
+  if (joint_position_.size() > 0 && joint_position_.size() != 2)  throw  transmission_interface::Exception(" illegal joint_position_.size() bigger then zero but not 2");
+  if (joint_velocity_.size() > 0 && joint_velocity_.size() != 2)  throw  transmission_interface::Exception(" illegal joint_velocity_.size() bigger then zero but not 2");
+  if (joint_effort_.size() > 0 && joint_effort_.size() != 2)  throw  transmission_interface::Exception(" illegal joint_effort_.size() bigger then zero but not 2");
 
   actuator_position_ =
     get_ordered_handles(actuator_handles, actuator_names, hardware_interface::HW_IF_POSITION);
@@ -216,13 +216,13 @@ void ScaraTransmission::configure(
 
   if (actuator_position_.size() == 0 && actuator_velocity_.size() == 0 &&actuator_effort_.size() == 0)
   {
-    throw Exception(
+    throw  transmission_interface::Exception(
       "Not enough valid or required actuator handles were presented. \n" + get_handles_info());
   }
 
-  if (actuator_position_.size() > 0 && actuator_position_.size() != 2)  throw Exception(" illegal actuator_position_.size() bigger then zero but not 2");
-  if (actuator_velocity_.size() > 0 && actuator_velocity_.size() != 2)  throw Exception(" illegal actuator_velocity_.size() bigger then zero but not 2");
-  if (actuator_effort_.size() > 0 && actuator_effort_.size() != 2)  throw Exception(" illegal actuator_effort_.size() bigger then zero but not 2");
+  if (actuator_position_.size() > 0 && actuator_position_.size() != 2)  throw  transmission_interface::Exception(" illegal actuator_position_.size() bigger then zero but not 2");
+  if (actuator_velocity_.size() > 0 && actuator_velocity_.size() != 2)  throw  transmission_interface::Exception(" illegal actuator_velocity_.size() bigger then zero but not 2");
+  if (actuator_effort_.size() > 0 && actuator_effort_.size() != 2)  throw  transmission_interface::Exception(" illegal actuator_effort_.size() bigger then zero but not 2");
 
 
   if (
@@ -230,7 +230,7 @@ void ScaraTransmission::configure(
     joint_velocity_.size() != actuator_velocity_.size() &&
     joint_effort_.size() != actuator_effort_.size())
   {
-    throw Exception("Pair-wise mismatch on interfaces. \n" + get_handles_info());
+    throw  transmission_interface::Exception("Pair-wise mismatch on interfaces. \n" + get_handles_info());
   }
 }
 
@@ -286,12 +286,12 @@ inline void ScaraTransmission::joint_to_actuator()
 std::string ScaraTransmission::get_handles_info() const
 {
   return std::string("Got the following handles:\n") +
-         "Joint position: " + to_string(get_names(joint_position_)) +
-         ", Actuator position: " + to_string(get_names(actuator_position_)) + "\n" +
-         "Joint velocity: " + to_string(get_names(joint_velocity_)) +
-         ", Actuator velocity: " + to_string(get_names(actuator_velocity_)) + "\n" +
-         "Joint effort: " + to_string(get_names(joint_effort_)) +
-         ", Actuator effort: " + to_string(get_names(actuator_effort_));
+         "Joint position: " + transmission_interface::to_string(get_names(joint_position_)) +
+         ", Actuator position: " + transmission_interface::to_string(get_names(actuator_position_)) + "\n" +
+         "Joint velocity: " + transmission_interface::to_string(get_names(joint_velocity_)) +
+         ", Actuator velocity: " + transmission_interface::to_string(get_names(actuator_velocity_)) + "\n" +
+         "Joint effort: " + transmission_interface::to_string(get_names(joint_effort_)) +
+         ", Actuator effort: " + transmission_interface::to_string(get_names(actuator_effort_));
 }
 
 }  // namespace transmission_interface

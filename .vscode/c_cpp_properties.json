@@ -5,15 +5,18 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/ros/humble/include",
+                "/opt/ros/humble/include/pluginlib",
+                "/opt/ros/humble/include/class_loader",
                 "/opt/ros/humble/include/rclcpp",
-                "/opt/ros/humble/include/rcpputils",
                 "/opt/ros/humble/include/rcl",
+                "/opt/ros/humble/include/rcpputils",
                 "/opt/ros/humble/include/rcutils",
-                "/opt/ros/humble/include/rmw"
+                "/opt/ros/humble/include/rmw",
+                "/opt/ros/humble/include/rcl_yaml_param_parser"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "gnu17",
+            "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64"
         }

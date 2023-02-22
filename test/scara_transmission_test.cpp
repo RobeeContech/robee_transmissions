@@ -27,7 +27,7 @@ using hardware_interface::HW_IF_POSITION;
 using hardware_interface::HW_IF_VELOCITY;
 using testing::DoubleNear;
 using transmission_interface::ActuatorHandle;
-using transmission_interface::ScaraTransmission;
+using robee_transmission_interface::ScaraTransmission;
 using transmission_interface::Exception;
 using transmission_interface::JointHandle;
 // Floating-point value comparison threshold
