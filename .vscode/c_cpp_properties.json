@@ -12,7 +12,10 @@
                 "/opt/ros/humble/include/rcpputils",
                 "/opt/ros/humble/include/rcutils",
                 "/opt/ros/humble/include/rmw",
-                "/opt/ros/humble/include/rcl_yaml_param_parser"
+                "/opt/ros/humble/include/rcl_yaml_param_parser",
+                "/opt/ros/humble/include/rosidl_runtime_c",
+                "/opt/ros/humble/include/rosidl_typesupport_interface",
+                "/opt/ros/humble/include/builtin_interfaces"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
