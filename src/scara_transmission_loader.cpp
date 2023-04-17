@@ -36,7 +36,13 @@ namespace robee_transmission_interface
       const auto jnt_offset1 = transmission_info.joints.at(0).offset;
       const auto jnt_offset2 = transmission_info.joints.at(1).offset;
 
-      std::shared_ptr<transmission_interface::Transmission> transmission(new ScaraTransmission({jnt_reduction1, jnt_reduction2}, {jnt_offset1, jnt_offset2}));
+      const double jnt_ppr1  =  std::stod(transmission_info.parameters.find("ppr1")->second);
+      const double jnt_ppr2  =  std::stod(transmission_info.parameters.find("ppr2")->second);
+
+      const double screw_reduction  =  std::stod(transmission_info.parameters.find("screw_reduction")->second);
+
+      std::shared_ptr<transmission_interface::Transmission> transmission(
+        new ScaraTransmission(screw_reduction,{jnt_reduction1, jnt_reduction2},{jnt_ppr1,jnt_ppr2}, {jnt_offset1, jnt_offset2}));
       return transmission;
     }
     catch (const std::exception & ex)

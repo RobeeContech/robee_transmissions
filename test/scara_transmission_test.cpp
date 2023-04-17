@@ -41,26 +41,27 @@ TEST(PreconditionsTest, ExceptionThrowing)
   const std::vector<double> reduction_bad3 = {0.0, 1.0};
   const std::vector<double> offset_good = {1.0, 1.0};
   const std::vector<double> zero_offset = {0, 0};
+  const std::vector<double> ppr = {1000.0, 1000.0};
 
   // Invalid instance creation: Transmission cannot have zero reduction
-  EXPECT_THROW(ScaraTransmission(reduction_bad1,zero_offset), Exception);
-  EXPECT_THROW(ScaraTransmission(reduction_bad2,zero_offset), Exception);
-  EXPECT_THROW(ScaraTransmission(reduction_bad3,zero_offset), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad1,ppr,zero_offset), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad2,ppr,zero_offset), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad3,ppr,zero_offset), Exception);
 
 
-  EXPECT_THROW(ScaraTransmission(reduction_bad1, offset_good), Exception);
-  EXPECT_THROW(ScaraTransmission(reduction_bad2, offset_good), Exception);
-  EXPECT_THROW(ScaraTransmission(reduction_bad3, offset_good), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad1,ppr, offset_good), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad2,ppr, offset_good), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad3,ppr, offset_good), Exception);
 
   // Invalid instance creation: Wrong parameter sizes
   const std::vector<double> reduction_bad_size = {1.0};
   const std::vector<double> & offset_bad_size = reduction_bad_size;
-  EXPECT_THROW(ScaraTransmission(reduction_bad_size,zero_offset), Exception);
-  EXPECT_THROW(ScaraTransmission(reduction_good, offset_bad_size), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_bad_size,ppr,zero_offset), Exception);
+  EXPECT_THROW(ScaraTransmission(250.0,reduction_good, ppr,offset_bad_size), Exception);
 
   // Valid instance creation
-  EXPECT_NO_THROW(ScaraTransmission(reduction_good,zero_offset));
-  EXPECT_NO_THROW(ScaraTransmission(reduction_good, offset_good));
+  EXPECT_NO_THROW(ScaraTransmission(250.0,reduction_good,ppr,zero_offset));
+  EXPECT_NO_THROW(ScaraTransmission(250.0,reduction_good,ppr, offset_good));
 }
 
 
@@ -71,7 +72,7 @@ TEST(PreconditionsTest, AccessorValidation)
   std::vector<double> jnt_reduction = {4.0, -4.0};
   std::vector<double> jnt_offset = {1.0, -1.0};
 
-  ScaraTransmission trans(jnt_reduction, jnt_offset);
+  ScaraTransmission trans(250,jnt_reduction, {1000.0,1000.0}, jnt_offset);
 
   EXPECT_EQ(2u, trans.num_actuators());
   EXPECT_EQ(2u, trans.num_joints());
@@ -83,7 +84,7 @@ TEST(PreconditionsTest, AccessorValidation)
 
 void testConfigureWithBadHandles(std::string interface_name)
 {
-  ScaraTransmission trans({1.0, 1.0}, {0.0, 0.0});
+  ScaraTransmission trans(250,{1.0, 1.0},{1000.0,1000.0}, {0.0, 0.0});
   double dummy;
 
   auto a1_handle = ActuatorHandle("act1", interface_name, &dummy);
@@ -216,12 +217,12 @@ protected:
 
   void test_IdentityMap_Case(vector<double> r,vector<double> o, vector<double> i)
   {
-      ScaraTransmission trans(r, o);
+      ScaraTransmission trans(250, r,{1000.0,1000.0}, o);
       test_IdentityMap_Case(trans,i);
   }
 
   void test_joint_to_actuator(vector<double> reduction,vector<double> off, vector<double> j, vector<double> ac){
-    ScaraTransmission trans(reduction, off);
+    ScaraTransmission trans(250,reduction,{1000.0,1000.0}, off);
     init_ScaraTransmission(trans,HW_IF_POSITION);
     a_val[0] = a_val[1] = EXTREMAL_VALUE;
     j_val[0] = j[0];
@@ -233,7 +234,7 @@ protected:
 
 
     void test_actuator_to_joint(vector<double> reduction,vector<double> off, vector<double> j, vector<double> ac){
-    ScaraTransmission trans(reduction, off);
+    ScaraTransmission trans(250.0,reduction, off);
     init_ScaraTransmission(trans,HW_IF_POSITION);
     j_val[0] = j_val[1] = EXTREMAL_VALUE;
     a_val[0] = ac[0];
@@ -260,6 +261,7 @@ protected:
       try
       {
         ScaraTransmission trans(
+          250,
           randomVector(2, rand_gen), randomVector(2, rand_gen));
         out.push_back(trans);
       }
@@ -345,12 +347,12 @@ protected:
 
   void test_IdentityMap_Case(vector<double> r,vector<double> o, vector<double> i)
   {
-      ScaraTransmission trans(r, o);
+      ScaraTransmission trans(250,r,{1000.0,1000.0}, o);
       test_IdentityMap_Case(trans,i);
   }
 
   void test_joint_to_actuator(vector<double> reduction,vector<double> off, vector<double> j, vector<double> ac){
-    ScaraTransmission trans(reduction, off);
+    ScaraTransmission trans(250.0,reduction,{1000.0,1000.0}, off);
     init_ScaraTransmission(trans,HW_IF_POSITION);
     val[0] = j[0];
     val[1] = j[1];
@@ -361,7 +363,7 @@ protected:
 
 
     void test_actuator_to_joint(vector<double> reduction,vector<double> off, vector<double> j, vector<double> ac){
-    ScaraTransmission trans(reduction, off);
+    ScaraTransmission trans(250.0,reduction,{1000.0,1000.0}, off);
     init_ScaraTransmission(trans,HW_IF_POSITION);
     val[0] = ac[0];
     val[1] = ac[1];
@@ -386,8 +388,8 @@ protected:
     {
       try
       {
-        ScaraTransmission trans(
-          randomVector(2, rand_gen), randomVector(2, rand_gen));
+        ScaraTransmission trans(250,
+          randomVector(2, rand_gen),{1000.0,1000.0}, randomVector(2, rand_gen));
         out.push_back(trans);
       }
       catch (const Exception &)
