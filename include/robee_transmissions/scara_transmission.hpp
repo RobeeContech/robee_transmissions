@@ -111,7 +111,7 @@ public:
    * \param[in] joint_offset       Offset of joints.
    * \pre Nonzero  joint reduction values.
    */
-  ScaraTransmission(const std::vector<double> & joint_reduction, const std::vector<double> & joint_offset = {0.0, 0.0});
+  ScaraTransmission(double screw_reduction, const std::vector<double> & joint_reduction,const std::vector<double> & joint_ppr, const std::vector<double> & joint_offset = {0.0, 0.0});
   
   /**
    * \param[in] joint_handles     Handles of joint values.
@@ -141,38 +141,55 @@ public:
 
   const std::vector<double> & get_joint_reduction() const { return joint_reduction_; }
   const std::vector<double> & get_joint_offset() const { return joint_offset_; }
+  const std::vector<double> & get_joint_ppr() const { return joint_ppr_; }
+
   /// Get human-friendly report of handles
   std::string get_handles_info() const;
 
 protected:
+  double screw_reduction_;
   std::vector<double> joint_reduction_;
+  std::vector<double> joint_ppr_;
   std::vector<double> joint_offset_;
 
-  std::vector<transmission_interface::JointHandle> joint_position_;
+  std::vector<double> joint_position_last_ ;
+
+  
+
+  std::vector<transmission_interface::JointHandle> joint_position_; 
   std::vector<transmission_interface::JointHandle> joint_velocity_;
   std::vector<transmission_interface::JointHandle> joint_effort_;
 
   std::vector<transmission_interface::ActuatorHandle> actuator_position_;
   std::vector<transmission_interface::ActuatorHandle> actuator_velocity_;
   std::vector<transmission_interface::ActuatorHandle> actuator_effort_;
+
+  // int debug = 0;
 };
 
 
  
-inline ScaraTransmission::ScaraTransmission(const std::vector<double> & joint_reduction, const std::vector<double> & joint_offset)
-  : joint_reduction_(joint_reduction), joint_offset_(joint_offset)
+inline ScaraTransmission::ScaraTransmission(double screw_reduction,
+                                            const std::vector<double> & joint_reduction, 
+                                            const std::vector<double> & joint_ppr,
+                                            const std::vector<double> & joint_offset)
+  : screw_reduction_(screw_reduction), joint_reduction_(joint_reduction), joint_ppr_(joint_ppr), joint_offset_(joint_offset)
 {
-  if (num_joints() != joint_reduction_.size() || num_joints() != joint_offset_.size())
+  if (num_joints() != joint_reduction_.size() || num_joints() != joint_offset_.size() || num_joints() != joint_ppr_.size())
   {
-    RCLCPP_INFO(rclcpp::get_logger("ScaraTransmission"),"Reduction and offset vectors must have size 2.");
+    RCLCPP_INFO(rclcpp::get_logger("ScaraTransmission"),"Reduction, ppr and offset vectors must have size 2.");
     throw  transmission_interface::Exception("Reduction and offset vectors must have size 2.");
   }
-
+  
   if ( 0.0 == joint_reduction_[0] || 0.0 == joint_reduction_[1])
   {
     RCLCPP_INFO(rclcpp::get_logger("ScaraTransmission"),"Transmission reduction ratios cannot be zero.");
     throw  transmission_interface::Exception("Transmission reduction ratios cannot be zero.");
   }
+
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("ScaraTransmission"),"joint_ppr_[0] =" << joint_ppr_[0]);
+  for(auto& x : joint_ppr_) { x/= 2*M_PI;}
+  RCLCPP_INFO_STREAM(rclcpp::get_logger("ScaraTransmission"),"joint_ppr_[0] =" << joint_ppr_[0]);
 }
 
 void ScaraTransmission::configure(
@@ -192,6 +209,8 @@ void ScaraTransmission::configure(
   const auto joint_names = get_names(joint_handles);
   const auto actuator_names = get_names(actuator_handles);
 
+  joint_position_last_.push_back(0.0);
+  joint_position_last_.push_back(0.0);
   joint_position_ =
     get_ordered_handles(joint_handles, joint_names, hardware_interface::HW_IF_POSITION);
   joint_velocity_ =
@@ -238,16 +257,21 @@ inline void ScaraTransmission::actuator_to_joint()
 {
   if (joint_position_.size() == num_joints())
   {
-    volatile auto jp0 = joint_offset_[0] +(actuator_position_[0].get_value()  - actuator_position_[1].get_value()) / joint_reduction_[0];
-    volatile auto jp1 = joint_offset_[1] + actuator_position_[1].get_value() / joint_reduction_[1];
+    auto ap0 = actuator_position_[0].get_value() / (joint_ppr_[0] * joint_reduction_[0]);
+    auto ap1 = actuator_position_[1].get_value() / (joint_ppr_[1] * joint_reduction_[1]);
+    volatile auto jp0 = joint_offset_[0] +(ap0 + ap1) / screw_reduction_ ;
+    volatile auto jp1 = joint_offset_[1] + ap1;
     joint_position_[0].set_value(jp0);
     joint_position_[1].set_value(jp1);
   }
 	    
   if (joint_velocity_.size() == num_joints())
   {
-    volatile auto jv0 = (actuator_velocity_[0].get_value()  - actuator_velocity_[1].get_value()) / joint_reduction_[0];
-    volatile auto jv1 = actuator_velocity_[1].get_value() / joint_reduction_[1]; 
+    auto av0 = actuator_velocity_[0].get_value() / (joint_ppr_[0] * joint_reduction_[0]);
+    auto av1 = actuator_velocity_[1].get_value() / (joint_ppr_[1] * joint_reduction_[1]);
+
+    volatile auto jv0 = (av0 + av1)  /   screw_reduction_;
+    volatile auto jv1 = av1; 
     joint_velocity_[0].set_value(jv0);   
     joint_velocity_[1].set_value(jv1);
   }
@@ -258,21 +282,36 @@ inline void ScaraTransmission::actuator_to_joint()
 	  joint_effort_[0].set_value(actuator_effort_[0].get_value());
 	  joint_effort_[1].set_value(actuator_effort_[1].get_value());
   }
+
+  // debug++;
+  
+  // if (debug > 50  || ((!std::isnan(joint_position_[0].get_value())) &&  (!std::isnan(joint_position_[1].get_value())) &&
+  //   (joint_position_last_[0]!= joint_position_[0].get_value()  || joint_position_last_[1]  !=  joint_position_[1].get_value()) ))
+  // {
+  //     RCLCPP_INFO_STREAM(rclcpp::get_logger("ScaraTransmission"), "pos:\n"<< 
+  //     "j[0] = " <<  joint_position_[0].get_value() <<  ", a[0] = " <<  actuator_position_[0].get_value() << "\n"<<
+  //     "j[1] = " <<  joint_position_[1].get_value() <<  ", a[1] = " <<  actuator_position_[1].get_value());
+
+  //     joint_position_last_[0] = joint_position_[0].get_value() ;
+  //     joint_position_last_[1] = joint_position_[1].get_value() ;
+  //     debug = 0;
+  // }
 }
+
 
 inline void ScaraTransmission::joint_to_actuator()
 {
   if (actuator_position_.size() == num_joints())
   {
       double joints_offset_applied[2] = {joint_position_[0].get_value() - joint_offset_[0], joint_position_[1].get_value() - joint_offset_[1]};
-      actuator_position_[0].set_value(joints_offset_applied[0] * joint_reduction_[0] + joints_offset_applied[1] * joint_reduction_[1]);
-      actuator_position_[1].set_value( joints_offset_applied[1] * joint_reduction_[1]);
+      actuator_position_[0].set_value( (joints_offset_applied[0] * screw_reduction_  - joints_offset_applied[1]) * joint_reduction_[0]* joint_ppr_[0]);
+      actuator_position_[1].set_value( joints_offset_applied[1] * joint_reduction_[1] *  joint_ppr_[1]);
   }
 	
   if (actuator_velocity_.size() == num_joints())
   {
-      actuator_velocity_[1].set_value(joint_velocity_[1].get_value() * joint_reduction_[1]);
-      actuator_velocity_[0].set_value(joint_velocity_[0].get_value() * joint_reduction_[0] + actuator_velocity_[1].get_value());
+      actuator_velocity_[1].set_value(joint_velocity_[1].get_value() * joint_reduction_[1] *  joint_ppr_[1]);
+      actuator_velocity_[0].set_value((joint_velocity_[0].get_value() * screw_reduction_  - actuator_velocity_[1].get_value())* joint_reduction_[0] * joint_ppr_[0]);
   }
 
   if (actuator_effort_.size() == num_joints())
@@ -281,6 +320,20 @@ inline void ScaraTransmission::joint_to_actuator()
     actuator_effort_[0].set_value(joint_effort_[0].get_value());
     actuator_effort_[1].set_value(joint_effort_[1].get_value());
   }
+
+  // debug++;
+
+  // if (debug > 50  || ((!std::isnan(joint_position_[0].get_value())) &&  (!std::isnan(joint_position_[1].get_value())) &&
+  //   (joint_position_last_[0]!= joint_position_[0].get_value()  || joint_position_last_[1]  !=  joint_position_[1].get_value()) ))
+  // {
+  //     RCLCPP_INFO_STREAM(rclcpp::get_logger("ScaraTransmission"), "cmd:\n"<< 
+  //     "j[0] = " <<  joint_position_[0].get_value() <<  ", a[0] = " <<  actuator_position_[0].get_value() << "\n"<<
+  //     "j[1] = " <<  joint_position_[1].get_value() <<  ", a[1] = " <<  actuator_position_[1].get_value());
+
+  //     joint_position_last_[0] = joint_position_[0].get_value() ;
+  //     joint_position_last_[1] = joint_position_[1].get_value() ;
+  //     debug = 0;
+  // }
 }
 
 std::string ScaraTransmission::get_handles_info() const

@@ -87,6 +87,9 @@ TEST(ScaraTransmissionLoaderTest, FullSpec)
             <offset>-0.5</offset>
             <mechanical_reduction>-2.0</mechanical_reduction>
           </joint>
+          <param name="ppr1">4000</param>
+          <param name="ppr2">8000</param>
+          <param name="screw_reduction">250</param>
         </transmission>
       </ros2_control>
     </robot>
@@ -155,6 +158,9 @@ TEST(ScaraTransmissionLoaderTest, only_mech_red_specified)
           <joint name="joint2" role="joint2">
             <mechanical_reduction>1.0</mechanical_reduction>
           </joint>
+          <param name="ppr1">4000</param>
+          <param name="ppr2">8000</param>
+          <param name="screw_reduction">250</param>
         </transmission>
       </ros2_control>
     </robot>
@@ -213,6 +219,9 @@ TEST(SimpleTransmissionLoaderTest, offset_and_mech_red_not_specified)
           <actuator name="joint2_motor" role="actuator2"/>
           <joint name="joint1" role="joint1"/>
           <joint name="joint2" role="joint2"/>
+          <param name="ppr1">4000</param>
+          <param name="ppr2">8000</param>
+          <param name="screw_reduction">250</param>
         </transmission>
       </ros2_control>
     </robot>
@@ -278,6 +287,9 @@ TEST(ScaraTransmissionLoaderTest, mechanical_reduction_not_a_number)
           </joint>
           <joint name="joint2" role="joint2">
             <mechanical_reduction>four</mechanical_reduction>
+          <param name="ppr1">4000</param>
+          <param name="ppr2">8000</param>
+          <param name="screw_reduction">250</param>
           </joint>
         </transmission>
       </ros2_control>
@@ -348,6 +360,9 @@ TEST(ScaraTransmissionLoaderTest, offset_ill_defined)
           <joint name="joint2" role="joint2">
             <offset>three</offset>  <!-- Not a number -->
             <mechanical_reduction>-2.0</mechanical_reduction>
+          <param name="ppr1">4000</param>
+          <param name="ppr2">8000</param>
+          <param name="screw_reduction">250</param>
           </joint>
         </transmission>
       </ros2_control>
@@ -419,6 +434,9 @@ TEST(ScaraTransmissionLoaderTest, mech_red_invalid_value)
             <offset>3</offset>
             <mechanical_reduction>0</mechanical_reduction>
           </joint>
+          <param name="ppr1">4000</param>
+          <param name="ppr2">8000</param>
+          <param name="screw_reduction">250</param>
         </transmission>
       </ros2_control>
     </robot>
