@@ -77,6 +77,23 @@ if(BUILD_TESTING)
   target_include_directories(test_scara_transmission_loader PUBLIC include hardware_interface transmission_interface)
   ament_target_dependencies(test_scara_transmission_loader hardware_interface transmission_interface)
 
+
+
+  ament_add_gmock(
+    test_piston_transmission
+    test/piston_transmission_test.cpp
+  )
+  target_include_directories(test_piston_transmission PUBLIC include hardware_interface transmission_interface)
+  ament_target_dependencies(test_piston_transmission hardware_interface transmission_interface)
+
+
+  ament_add_gmock(
+    test_piston_transmission_loader
+    test/piston_transmission_loader_test.cpp
+  )
+  target_include_directories(test_piston_transmission_loader PUBLIC include hardware_interface transmission_interface)
+  ament_target_dependencies(test_piston_transmission_loader hardware_interface transmission_interface)
+
 endif()
 
 ament_export_include_directories(

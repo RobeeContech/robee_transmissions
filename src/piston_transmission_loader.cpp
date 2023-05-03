@@ -44,9 +44,11 @@ namespace robee_transmission_interface
       const auto jnt_b = get_param(transmission_info.parameters, "b");
       const auto jnt_l = get_param(transmission_info.parameters, "l");
       const auto jnt_offset = transmission_info.joints.at(0).offset;
+      const auto act_offset = get_param(transmission_info.parameters, "actuator_offset");
       const auto jnt_mechanical_reduction = transmission_info.joints.at(0).mechanical_reduction;
 
-      std::shared_ptr<transmission_interface::Transmission> transmission(new PistonTransmission(jnt_r,jnt_b,jnt_l, jnt_offset,
+      std::shared_ptr<transmission_interface::Transmission> transmission(new PistonTransmission(jnt_r,jnt_b,jnt_l,
+                                                                                                jnt_offset, act_offset,
                                                                                                 jnt_mechanical_reduction));
       return transmission;
     }

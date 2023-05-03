@@ -43,11 +43,12 @@ public:
    * \param[in] b      length of
    * \param[in] l      length of
    * \param[in] joint_offset       Offset of joints.
+   * \param[in] actuator_offset       Offset of joints.
    * \param[in] joint_mechanical_reduction       linear conversation ratio between piston opening in meters to piston encoder ticks .
    * \pre Nonzero  joint reduction values.
    */
   PistonTransmission(const double & r,const double & b,const double & l, 
-                    const double & joint_offset, const double & joint_mechanical_reduction);
+                    const double & joint_offset, const double & actuator_offset, const double & joint_mechanical_reduction);
   
   /**
    * \param[in] joint_handles     Handles of joint values.
@@ -82,7 +83,7 @@ public:
 
 protected:
   double  r_, b_, l_;
-  double  joint_offset_;
+  double  joint_offset_, actuator_offset_;
   double  joint_mechanical_reduction_;
 
   transmission_interface::JointHandle joint_position_= {"", "", nullptr};
@@ -97,8 +98,10 @@ protected:
 
  
 inline PistonTransmission::PistonTransmission(const double & r,const double & b,const double & l, 
-                                              const double & joint_offset, const double & joint_mechanical_reduction)
-  : r_(r),b_(b), l_(l), joint_offset_(joint_offset), joint_mechanical_reduction_(joint_mechanical_reduction)
+                                              const double & joint_offset, const double & actuator_offset,
+                                              const double & joint_mechanical_reduction)
+  : r_(r),b_(b), l_(l), joint_offset_(joint_offset), actuator_offset_(actuator_offset),
+    joint_mechanical_reduction_(joint_mechanical_reduction)
 {
   if (r == 0.0) throw transmission_interface::Exception("Piston Transmission r param  cannot be zero.");
   if (b == 0.0) throw transmission_interface::Exception("Piston Transmission b param  cannot be zero.");
@@ -175,11 +178,10 @@ void PistonTransmission::configure(
 }
 
 /**
- *  joint_pos(actuator_pos) =   (((actuator_pos / joint_mechanical_reduction_) + l - r^2 - b^2) / (-2*r*b)) - joint_offset
+ *  joint_pos(actuator_pos) =   ((((actuator_pos + actuator_offset_) / joint_mechanical_reduction_) + l - r^2 - b^2) / (-2*r*b)) - joint_offset
 */
 inline void PistonTransmission::actuator_to_joint()
 {
-  
   if (joint_effort_ && actuator_effort_)
   {
     joint_effort_.set_value(actuator_effort_.get_value() * joint_mechanical_reduction_);
@@ -192,19 +194,19 @@ inline void PistonTransmission::actuator_to_joint()
 
   if (joint_position_ && actuator_position_)
   {
-    joint_position_.set_value((((actuator_position_.get_value() / joint_mechanical_reduction_) + l_ - r_*r_ - b_*b_) / (-2*r_*b_)) - joint_offset_);
+    joint_position_.set_value(((((actuator_position_.get_value() + actuator_offset_) / joint_mechanical_reduction_) + l_ - r_*r_ - b_*b_) / (-2*r_*b_)) - joint_offset_);
   }
 }
 
 /**
- * actuator_pos(joint_pos) =  (( r^2 + b^2 - 2 * r * b * cos(joint_offset + joint_pos)) / l ) * joint_mechanical_reduction_
+ * actuator_pos(joint_pos) =  ((( r^2 + b^2 - 2 * r * b * cos(joint_offset + joint_pos)) / l ) * joint_mechanical_reduction_ ) - actuator_offset_
 */
 inline void PistonTransmission::joint_to_actuator()
 {
   
   if (joint_position_ && actuator_position_)
   {
-       actuator_position_.set_value((( r_*r_ + b_*b_ - 2 * r_ * b_ * cos(joint_offset_ + joint_position_.get_value())) / l_ ) * joint_mechanical_reduction_);
+       actuator_position_.set_value(((( r_*r_ + b_*b_ - 2 * r_ * b_ * cos(joint_offset_ + joint_position_.get_value())) / l_ ) * joint_mechanical_reduction_) - actuator_offset_);
   }
 	
   if (joint_velocity_ && actuator_velocity_)
