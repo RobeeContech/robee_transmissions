@@ -75,7 +75,7 @@ TEST(PistonTransmissionLoaderTest, FullSpec)
           <param name="r">0.1</param>
           <param name="b">0.1</param>
           <param name="l">0.1</param>
-          <param name="actuator_offset">1000</param>
+          <param name="actuator_offset">1000.0/param>
         </transmission>
       </ros2_control>
     </robot>
