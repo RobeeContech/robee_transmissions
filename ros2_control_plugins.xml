@@ -7,8 +7,6 @@
       Load configuration of a scara transmission from a URDF description.
     </description>
   </class>
-
-
  <class name="robee_transmission_interface/BasicTransmission"
          type="robee_transmission_interface::BasicTransmissionLoader"
          base_class_type="transmission_interface::TransmissionLoader">
@@ -16,4 +14,14 @@
       Load configuration of a Basic transmission from a URDF description.
     </description>
   </class>
+   <class name="robee_transmission_interface/PistonTransmission"
+         type="robee_transmission_interface::PistonTransmissionLoader"
+         base_class_type="transmission_interface::TransmissionLoader">
+    <description>
+      Load configuration of a piston transmission from a URDF description.
+    </description>
+  </class>
 </library>
+
+
+

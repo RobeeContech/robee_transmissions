@@ -30,6 +30,7 @@ endforeach()
 add_library(${PROJECT_NAME} SHARED
   src/scara_transmission_loader.cpp
   src/basic_transmission_loader.cpp
+  src/piston_transmission_loader.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}

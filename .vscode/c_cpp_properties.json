@@ -15,7 +15,12 @@
                 "/opt/ros/humble/include/rcl_yaml_param_parser",
                 "/opt/ros/humble/include/rosidl_runtime_c",
                 "/opt/ros/humble/include/rosidl_typesupport_interface",
-                "/opt/ros/humble/include/builtin_interfaces"
+                "/opt/ros/humble/include/builtin_interfaces",
+                "/opt/ros/humble/include/rosidl_runtime_cpp",
+                "/opt/ros/humble/include/tracetools",
+                "/opt/ros/humble/include/rcl_interfaces",
+                "/opt/ros/humble/include/libstatistics_collector",
+                "/opt/ros/humble/include/statistics_msgs"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
