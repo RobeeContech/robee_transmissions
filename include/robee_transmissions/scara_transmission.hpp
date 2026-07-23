@@ -16,6 +16,9 @@
 #define TRANSMISSION_INTERFACE__SCARA_TRANSMISSION_HPP_
 
 #include <cassert>
+#include <atomic>
+#include <cmath>
+#include <cstdint>
 #include <set>
 #include <string>
 #include <vector>
@@ -147,6 +150,9 @@ namespace robee_transmission_interface
      */
     void joint_to_actuator() override;
 
+    /// Freeze raw SCARA motor commands while a driver encoder reference is reset.
+    static void set_encoder_reset_mode(bool enabled);
+
     std::size_t num_actuators() const override { return 2; }
     std::size_t num_joints() const override { return 2; }
 
@@ -175,6 +181,15 @@ namespace robee_transmission_interface
     std::vector<transmission_interface::ActuatorHandle> actuator_position_;
     std::vector<transmission_interface::ActuatorHandle> actuator_velocity_;
     std::vector<transmission_interface::ActuatorHandle> actuator_effort_;
+
+    // The command transmission keeps both raw motor targets fixed while an
+    // encoder offset is written.  The state transform remains coupled so the
+    // new measured joint coordinates can be observed and re-anchored safely.
+    bool reset_hold_active_{false};
+    std::uint64_t reset_hold_generation_{0};
+    double reset_hold_actuator_positions_[2]{0.0, 0.0};
+    static std::atomic<bool> encoder_reset_mode_;
+    static std::atomic<std::uint64_t> encoder_reset_mode_generation_;
 
     // int debug = 0;
   };
@@ -350,6 +365,29 @@ namespace robee_transmission_interface
 
   inline void ScaraTransmission::joint_to_actuator()
   {
+    if (encoder_reset_mode_.load(std::memory_order_acquire)) {
+      const auto reset_generation =
+        encoder_reset_mode_generation_.load(std::memory_order_acquire);
+      if (!reset_hold_active_ || reset_hold_generation_ != reset_generation) {
+        if (actuator_position_.size() != num_actuators()) {
+          return;
+        }
+        const double actuator0 = actuator_position_[0].get_value();
+        const double actuator1 = actuator_position_[1].get_value();
+        if (!std::isfinite(actuator0) || !std::isfinite(actuator1)) {
+          return;
+        }
+        reset_hold_actuator_positions_[0] = actuator0;
+        reset_hold_actuator_positions_[1] = actuator1;
+        reset_hold_generation_ = reset_generation;
+        reset_hold_active_ = true;
+      }
+      actuator_position_[0].set_value(reset_hold_actuator_positions_[0]);
+      actuator_position_[1].set_value(reset_hold_actuator_positions_[1]);
+      return;
+    }
+    reset_hold_active_ = false;
+
     if (actuator_position_.size() == num_joints())
     {
       double joints_offset_applied[2] = {

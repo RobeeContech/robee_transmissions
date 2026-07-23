@@ -26,6 +26,17 @@
 
 namespace robee_transmission_interface
 {
+  std::atomic<bool> ScaraTransmission::encoder_reset_mode_{false};
+  std::atomic<std::uint64_t> ScaraTransmission::encoder_reset_mode_generation_{0};
+
+  void ScaraTransmission::set_encoder_reset_mode(bool enabled)
+  {
+    if (enabled) {
+      encoder_reset_mode_generation_.fetch_add(1, std::memory_order_relaxed);
+    }
+    encoder_reset_mode_.store(enabled, std::memory_order_release);
+  }
+
   std::shared_ptr<transmission_interface::Transmission> ScaraTransmissionLoader::load(const hardware_interface::TransmissionInfo & transmission_info)
   {
     try
