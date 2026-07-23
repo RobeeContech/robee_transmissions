@@ -67,6 +67,7 @@ if(BUILD_TESTING)
   )
   target_include_directories(test_scara_transmission PUBLIC include hardware_interface transmission_interface)
   ament_target_dependencies(test_scara_transmission hardware_interface transmission_interface)
+  target_link_libraries(test_scara_transmission ${PROJECT_NAME})
 
 
   ament_add_gmock(
@@ -75,6 +76,7 @@ if(BUILD_TESTING)
   )
   target_include_directories(test_scara_transmission_loader PUBLIC include hardware_interface transmission_interface)
   ament_target_dependencies(test_scara_transmission_loader hardware_interface transmission_interface)
+  target_link_libraries(test_scara_transmission_loader ${PROJECT_NAME})
 
 endif()
 
